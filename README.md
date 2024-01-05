@@ -1,2 +1,15 @@
-# github-update-cd-repo
-A tekton task for github-update-cd-repo
+# Stakater Cluster Task for Updating Github CD Repo
+
+## Local Development
+
+### Install
+
+```
+tilt up
+```
+
+### Teardown
+
+```
+tilt down
+```
