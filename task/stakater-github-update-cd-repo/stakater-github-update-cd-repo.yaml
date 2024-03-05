@@ -5,7 +5,7 @@ kind: Task
 metadata:
   name: stakater-github-update-cd-repo
   labels:
-    app.kubernetes.io/version: "1.0.8"
+    app.kubernetes.io/version: "0.0.13"
 spec:
   workspaces:
     - name: source
@@ -82,6 +82,18 @@ spec:
               key: username
               name: helm-reg-creds
               optional: true
+        - name: HELM_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: $(params.HELM_REG_CREDS_SECRET_NAME)
+              key: url
+              optional: true
+        - name: IMAGE_REGISTRY
+          valueFrom:
+            secretKeyRef:
+              name: docker-reg-creds
+              key: url
+              optional: true
         - name: PARAM_USER_HOME
           value: $(params.USER_HOME)
       args:
@@ -140,10 +152,18 @@ spec:
           
           echo "Repo is ${REPO}"
           
-          echo "Adding nexus helm repo $(params.HELM_REGISTRY)"
+          if [ $(params.HELM_REGISTRY) != "NA" ]; then
+            echo "Adding nexus helm repo $(params.HELM_REGISTRY)"
           
-          helm repo add nexus $(params.HELM_REGISTRY) --username ${HELM_REG_USER} --password ${HELM_REG_PASSWORD}
-
+            helm repo add nexus $(params.HELM_REGISTRY) --username ${HELM_REG_USER} --password ${HELM_REG_PASSWORD}
+          
+          else 
+            echo "Adding nexus helm repo ${HELM_REGISTRY}"
+          
+            helm repo add nexus ${HELM_REGISTRY} --username ${HELM_REG_USER} --password ${HELM_REG_PASSWORD}
+          
+          fi 
+          
           cd *$TEAM
           
           cd *$REPO
@@ -165,7 +185,7 @@ spec:
             yq e -i '.dependencies[0].version = "$(params.IMAGE_TAG)"' $(params.ENVIRONMENT)/Chart.yaml
             yq e -i '.version = "$(params.IMAGE_TAG)"' $(params.ENVIRONMENT)/Chart.yaml
             # Update values.yaml
-            UPDATE_PATH=".$REPO.application.deployment.image.repository" yq e -i 'eval(strenv(UPDATE_PATH)) = "$(params.IMAGE_NAME)"'  $(params.ENVIRONMENT)/values.yaml
+            UPDATE_PATH=".$REPO.application.deployment.image.repository" yq e -i 'eval(strenv(UPDATE_PATH)) = "${IMAGE_REGISTRY}/$(params.IMAGE_NAME)"'  $(params.ENVIRONMENT)/values.yaml
             UPDATE_PATH=".$REPO.application.deployment.image.tag" yq e -i 'eval(strenv(UPDATE_PATH)) =  "$(params.IMAGE_TAG)"'  $(params.ENVIRONMENT)/values.yaml
             echo "File updated:"
             set +e
