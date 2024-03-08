@@ -58,7 +58,7 @@ spec:
       default: "helm-reg-creds"  
   steps:
     - name: update-cd-repo
-      image: stakater/pipeline-toolbox:v0.0.36
+      image: http://ghcr.io/stakater/pipeline-toolbox:v0.0.37
       command: ["/bin/bash"]
       workingDir: $(workspaces.source.path)
       env:
