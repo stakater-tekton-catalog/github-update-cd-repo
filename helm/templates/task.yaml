@@ -195,7 +195,7 @@ spec:
             yq e -i '.dependencies[0].version = "$(params.IMAGE_TAG)"' $(params.ENVIRONMENT)/Chart.yaml
             yq e -i '.version = "$(params.IMAGE_TAG)"' $(params.ENVIRONMENT)/Chart.yaml
             # Update values.yaml
-            UPDATE_PATH=".$REPO.application.deployment.image.repository" yq e -i 'eval(strenv(UPDATE_PATH)) = "${IMAGE_REGISTRY}/$(params.IMAGE_NAME)"'  $(params.ENVIRONMENT)/values.yaml
+            UPDATE_PATH=".$REPO.application.deployment.image.repository" imageUrl="${IMAGE_REGISTRY}/$(params.IMAGE_NAME)" yq e -i 'eval(strenv(UPDATE_PATH)) = strenv(imageUrl)'  $(params.ENVIRONMENT)/values.yaml
             UPDATE_PATH=".$REPO.application.deployment.image.tag" yq e -i 'eval(strenv(UPDATE_PATH)) =  "$(params.IMAGE_TAG)"'  $(params.ENVIRONMENT)/values.yaml
             echo "File updated:"
             set +e
