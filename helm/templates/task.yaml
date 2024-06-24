@@ -201,7 +201,7 @@ spec:
           elif [ "$(params.PR_NUMBER)" = "NA" ] && ( [ "$(params.GIT_REVISION)" = "main" ] || [ "$(params.GIT_REVISION)" = "master" ] ); then
             if [ "${WORKSPACE_REPO_TOKEN_BOUND}" = "true"  ]; then
               token="$(params.GIT_PAT_KEY)"
-              FILE=../workspace/repo-token/$token 
+              FILE="/workspace/repo-token/password"
               echo "$FILE exists."
               GIT_TOKEN=`cat $FILE`
               PR_NUMBER=`curl -H "Authorization: token $GIT_TOKEN" $(params.PULL_REQUEST_COMMITS_API) | jq -r '.[].number'`
