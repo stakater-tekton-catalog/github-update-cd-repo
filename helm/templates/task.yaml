@@ -208,9 +208,9 @@ spec:
             else
               PR_NUMBER=`curl -H "Authorization: token $GIT_TOKEN" $(params.PULL_REQUEST_COMMITS_API) | jq -r '.[].number'`
             fi
-            echo "Removing test ENVIRONMENT for PR-$(PR_NUMBER)"
+            echo "Removing test ENVIRONMENT for PR-$PR_NUMBER"
             cd *preview
-            rm pr-$(PR_NUMBER).yaml || true
+            rm pr-$PR_NUMBER.yaml || true
             cd ..
             echo "Updating chart for repo ${REPO}"
             echo "Repo ${IMAGE_NAME}"
