@@ -5,9 +5,11 @@ kind: Task
 metadata:
   name: stakater-github-update-cd-repo
   labels:
-    app.kubernetes.io/version: "0.0.17"
+    app.kubernetes.io/version: "0.0.18"
 spec:
   workspaces:
+    - name: repo-token
+      optional: true
     - name: source
     - name: ssh-directory
       optional: true
@@ -58,12 +60,22 @@ spec:
     - name: HELM_REG_CREDS_SECRET_NAME
       description: Helm registry credentials secret name
       default: "helm-reg-creds"  
+    - description: This the url for api that returns commits on a pull request. If you have a self hosted scm, you will need to check its documentation for he api Url.
+      default: ''
+      name: PULL_REQUEST_COMMITS_API
+      type: string
+    - description: Git PAT secret reference key
+      default: 'password'
+      name: GIT_PAT_KEY
+      type: string
   steps:
     - name: update-cd-repo
       image: ghcr.io/stakater/pipeline-toolbox:v0.0.37
       command: ["/bin/bash"]
       workingDir: $(workspaces.source.path)
       env:
+        - name: WORKSPACE_REPO_TOKEN_BOUND
+          value: $(workspaces.repo-token.bound)
         - name: WORKSPACE_SSH_DIRECTORY_BOUND
           value: $(workspaces.ssh-directory.bound)
         - name: WORKSPACE_SSH_DIRECTORY_PATH
@@ -189,6 +201,19 @@ spec:
             git commit -m "Add/Update ENVIRONMENT for ${REPO} pr - $(params.PR_NUMBER)"
             set -e
           elif [ "$(params.PR_NUMBER)" = "NA" ] && ( [ "$(params.GIT_REVISION)" = "main" ] || [ "$(params.GIT_REVISION)" = "master" ] ); then
+            if [ "${WORKSPACE_REPO_TOKEN_BOUND}" = "true"  ]; then
+              token="$(params.GIT_PAT_KEY)"
+              FILE="/workspace/repo-token/password"
+              echo "$FILE exists."
+              GIT_TOKEN=`cat $FILE`
+              PR_NUMBER=`curl -H "Authorization: token $GIT_TOKEN" $(params.PULL_REQUEST_COMMITS_API) | jq -r '.[].number'`
+            else
+              PR_NUMBER=`curl -H "Authorization: token $GIT_TOKEN" $(params.PULL_REQUEST_COMMITS_API) | jq -r '.[].number'`
+            fi
+            echo "Removing test ENVIRONMENT for PR-$PR_NUMBER"
+            cd *preview
+            rm pr-$PR_NUMBER.yaml || true
+            cd ..
             echo "Updating chart for repo ${REPO}"
             echo "Repo ${IMAGE_NAME}"
             echo "Tag $(params.IMAGE_NAME)"
