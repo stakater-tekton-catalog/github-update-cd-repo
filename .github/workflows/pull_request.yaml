@@ -9,11 +9,11 @@ on:
 
 jobs:
   build-helm-and-push-helm-snapshot:
-    uses: stakater-tekton-catalog/.github/.github/workflows/pull_request_tekton.yaml@v0.0.2
+    uses: stakater-tekton-catalog/.github/.github/workflows/pull_request_tekton.yaml@v0.0.4
     name: Build helm and push snapshot to registry
     with:
       HELM_PACKAGE_NAME: stakater-github-update-cd-repo
     secrets:
       CONTAINER_REGISTRY_URL: ghcr.io/stakater
-      CONTAINER_REGISTRY_USERNAME: ${{ github.actor }}
-      CONTAINER_REGISTRY_PASSWORD: ${{ secrets.STAKATER_GITHUB_TOKEN }}
+      CONTAINER_REGISTRY_USERNAME: ${{ secrets.GHCR_USERNAME }}
+      CONTAINER_REGISTRY_PASSWORD: ${{ secrets.GHCR_TOKEN }}
