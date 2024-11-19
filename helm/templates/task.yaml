@@ -226,8 +226,8 @@ spec:
               UPDATE_PATH=".$REPO.application.deployment.image.repository" imageUrl="${IMAGE_REGISTRY}/$(params.IMAGE_NAME)" yq e -i 'eval(strenv(UPDATE_PATH)) = strenv(imageUrl)'  $(params.ENVIRONMENT)/values.yaml
               UPDATE_PATH=".$REPO.application.deployment.image.tag" yq e -i 'eval(strenv(UPDATE_PATH)) =  "$(params.IMAGE_TAG)"'  $(params.ENVIRONMENT)/values.yaml
             elif [ "$(yq e "eval(strenv(.$REPO.application.cronJob.enabled))" $(params.ENVIRONMENT)/values.yaml)" == "true" ]; then
-              UPDATE_PATH=".$REPO.application.cronJob.image.repository" imageUrl="${IMAGE_REGISTRY}/$(params.IMAGE_NAME)" yq e -i 'eval(strenv(UPDATE_PATH)) = strenv(imageUrl)'  $(params.ENVIRONMENT)/values.yaml
-              UPDATE_PATH=".$REPO.application.cronJob.image.tag" yq e -i 'eval(strenv(UPDATE_PATH)) =  "$(params.IMAGE_TAG)"'  $(params.ENVIRONMENT)/values.yaml
+              UPDATE_PATH=".$REPO.application.cronJob.jobs.$REPO.image.repository" imageUrl="${IMAGE_REGISTRY}/$(params.IMAGE_NAME)" yq e -i 'eval(strenv(UPDATE_PATH)) = strenv(imageUrl)'  $(params.ENVIRONMENT)/values.yaml
+              UPDATE_PATH=".$REPO.application.cronJob.jobs.$REPO.image.tag" yq e -i 'eval(strenv(UPDATE_PATH)) =  "$(params.IMAGE_TAG)"'  $(params.ENVIRONMENT)/values.yaml
             fi
             echo "File updated:"
             set +e
